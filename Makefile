@@ -1,6 +1,6 @@
 cc=gcc
 
-files = memallocator
+files = memallocator-vipzone
       
 all : $(files)
 
