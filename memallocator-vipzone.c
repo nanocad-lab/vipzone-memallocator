@@ -150,10 +150,10 @@ int main(const int argc, const char *argv[]) {
 	
 	//allocate the huge array for storing page address pointers
 	if (allocator_choice == 2) { //use vip_malloc
-		printf("Getting memory pointer array using malloc...\n");
+		printf("Getting memory pointer array using vip_malloc with vip_flags READ/HI...\n");
 		if (!(page_array = vip_malloc(MAX_NUM_PAGES*sizeof(unsigned long *), _VIP_TYP_READ | _VIP_UTIL_HI))) {
-			printf("Error: Could not allocate page array using vip_malloc. Terminating.\n");
-			perror("vip_malloc");
+			printf("Error: Could not allocate page array using vip_malloc (READ/HI). Terminating.\n");
+			perror("Failure reason");
 			return 1;
 		}
  	} else if (allocator_choice == 3) { //use vip_mmap
@@ -161,7 +161,7 @@ int main(const int argc, const char *argv[]) {
 		page_array = (unsigned long **) syscall(NR_vip_mmap, NULL, MAX_NUM_PAGES*sizeof(unsigned long *), (PROT_READ | PROT_WRITE | _VIP_TYP_READ | _VIP_UTIL_HI), (MAP_ANONYMOUS | MAP_PRIVATE), -1, 0);
 		if (page_array == MAP_FAILED) {
 			printf("Error: Could not allocate page array using vip_mmap (READ/HI). Terminating.\n");
-			perror("vip_mmap");
+			perror("Failure reason");
 			return 1;
 		}
 	} else if (allocator_choice == 1) { //use mmap
@@ -169,14 +169,14 @@ int main(const int argc, const char *argv[]) {
 		page_array = (unsigned long **) syscall(NR_mmap, NULL, MAX_NUM_PAGES*sizeof(unsigned long *), (PROT_READ | PROT_WRITE), (MAP_ANONYMOUS | MAP_PRIVATE), -1, 0);
 		if (page_array == MAP_FAILED) {
 			printf("Error: Could not allocate page array using mmap. Terminating.\n");
-			perror("mmap");
+			perror("Failure reason");
 			return 1;
 		}
 	} else { //use malloc()
 		printf("Getting memory pointer array using malloc...\n");
 		if (!(page_array = malloc(MAX_NUM_PAGES*sizeof(unsigned long *)))) {
 			printf("Error: Could not allocate page array using malloc. Terminating.\n");
-			perror("malloc");
+			perror("Failure reason");
 			return 1;
 		}
 	}
@@ -193,7 +193,7 @@ int main(const int argc, const char *argv[]) {
 			*(page_array+page) = vip_malloc(PAGE_SIZE, _VIP_TYP_READ | _VIP_UTIL_HI);
 			if (*(page_array+page) == NULL) {
 				printf("Error: Failed to vip_malloc page number %lu, at %0.2f MB.\n", page, (double)page*PAGE_SIZE/(1024*1024));
-				perror("vip_malloc");
+				perror("Failure reason");
 				break;
 			}
 			page++;
@@ -204,7 +204,7 @@ int main(const int argc, const char *argv[]) {
 			page++;
 		if (*(page_array+page) == MAP_FAILED) {
 			printf("Error: Failed to vip_mmap page number %lu, at %0.2f MB.\n", page, (double)page*PAGE_SIZE/(1024*1024));
-			perror("vip_mmap");
+			perror("Failure reason");
 		}
 	} else if (allocator_choice == 1) {  //mmap
 		printf("Hogging memory using mmap...\n");
@@ -212,7 +212,7 @@ int main(const int argc, const char *argv[]) {
 			page++;
 		if (*(page_array+page) == MAP_FAILED) {
 			printf("Error: Failed to mmap page number %lu, at %0.2f MB.\n", page, (double)page*PAGE_SIZE/(1024*1024));
-			perror("mmap");
+			perror("Failure reason");
 		}
 	} else { //malloc
 		printf("Hogging memory using malloc...\n");
@@ -220,7 +220,7 @@ int main(const int argc, const char *argv[]) {
 			*(page_array+page) = malloc(PAGE_SIZE);
 			if (*(page_array+page) == NULL) {
 				printf("Error: Failed to malloc page number %lu, at %0.2f MB.\n", page, (double)page*PAGE_SIZE/(1024*1024));
-				perror("malloc");
+				perror("Failure reason");
 				break;
 			}
 			page++;
